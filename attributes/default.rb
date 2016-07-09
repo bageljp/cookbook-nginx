@@ -1,0 +1,12 @@
+default['nginx']['version']['major'] = "1.6"
+default['nginx']['version']['minor'] = "2"
+default['nginx']['install_flavor'] = "yum"
+default['nginx']['log_rotate'] = "31"
+default['nginx']['conf']['template_dir'] = nil
+default['nginx']['user'] = "nginx"
+default['nginx']['group']['add'] = nil
+default['nginx']['ssl']['enable'] = false
+default['nginx']['ssl']['root_dir'] = "/etc/nginx/ssl"
+default['nginx']['ssl']['link_dir'] = "link_to"
+default['nginx']['ssl']['server_key'] = "server.key"
+default['nginx']['ssl']['server_crt'] = "server.crt"

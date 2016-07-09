@@ -1,0 +1,134 @@
+user  <%= node['nginx']['user'] %>;
+worker_processes  1;
+
+error_log  /var/log/nginx/error.log;
+#error_log  /var/log/nginx/error.log  notice;
+#error_log  /var/log/nginx/error.log  info;
+
+pid        /var/run/nginx.pid;
+
+events {
+    worker_connections 4096;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format ltsv       "time:$time_local\t"
+                          "msec:$msec\t"
+                          "host:$remote_addr\t"
+                          "forwardedfor:$http_x_forwarded_for\t"
+                          "user:$remote_user\t"
+                          "method:$request_method\t"
+                          "path:$request_uri\t"
+                          "protocol:$server_protocol\t"
+                          "status:$status\t"
+                          "size_req:$request_length\t"
+                          "size_res:$bytes_sent\t"
+                          "size:$body_bytes_sent\t"
+                          "response_time:$request_time\t"
+                          "time_ups:$upstream_response_time\t"
+                          "referer:$http_referer\t"
+                          "agent:$http_user_agent\t"
+                          "cache:$upstream_http_x_cache\t"
+                          "cache_status:$upstream_cache_status\t"
+                          "runtime:$upstream_http_x_runtime\t"
+                          "domain:$host\t"
+                          "cookie:$http_cookie\t"
+                          "set_cookie:$sent_http_set_cookie";
+
+    log_format ltsvssl    "time:$time_local\t"
+                          "msec:$msec\t"
+                          "host:$remote_addr\t"
+                          "forwardedfor:$http_x_forwarded_for\t"
+                          "user:$remote_user\t"
+                          "method:$request_method\t"
+                          "path:$request_uri\t"
+                          "protocol:$server_protocol\t"
+                          "status:$status\t"
+                          "size_req:$request_length\t"
+                          "size_res:$bytes_sent\t"
+                          "size:$body_bytes_sent\t"
+                          "response_time:$request_time\t"
+                          "time_ups:$upstream_response_time\t"
+                          "referer:$http_referer\t"
+                          "agent:$http_user_agent\t"
+                          "cache:$upstream_http_x_cache\t"
+                          "cache_status:$upstream_cache_status\t"
+                          "runtime:$upstream_http_x_runtime\t"
+                          "domain:$host\t"
+                          "cookie:$http_cookie\t"
+                          "ssl_protocol:$ssl_protocol\t"
+                          "ssl_cipher:$ssl_cipher\t"
+                          "set_cookie:$sent_http_set_cookie";
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log      /var/log/nginx/access.log  ltsv;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+
+    gzip              on;
+    gzip_http_version 1.0;
+    gzip_types        text/plain
+                      text/xml
+                      text/css
+                      application/xml
+                      application/xhtml+xml
+                      application/rss+xml
+                      application/atom_xml
+                      application/javascript
+                      application/x-javascript
+                      application/x-httpd-php;
+    gzip_disable      "MSIE [1-6]\.";
+    gzip_disable      "Mozilla/4";
+    gzip_comp_level   1;
+    gzip_proxied      off;
+    gzip_vary         off;
+    gzip_buffers      4 8k;
+    gzip_min_length   1100;
+
+    server_tokens off;
+
+    # use ELB
+    #set_real_ip_from  172.31.0.0/16;
+    #real_ip_header    X-FORWARDED-FOR;
+    #real_ip_recursive on;
+
+    server {
+        listen       80 default_server;
+        #listen       443 default_server ssl;
+        server_name  _;
+
+        client_max_body_size 4M;
+        #charset koi8-r;
+
+        #ssl                 on;
+        #ssl_certificate     /etc/pki/tls/certs/localhost.crt;
+        #ssl_certificate_key /etc/pki/tls/private/localhost.key;
+        #ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
+        #ssl_ciphers         HIGH:!aNULL:!MD5;
+        #ssl_session_cache   shared:SSL:10m;
+        #ssl_session_timeout 10m;
+
+        root /usr/share/nginx/html;
+
+        location / {
+            allow all;
+        }
+
+        location = /nginx_status {
+            stub_status on;
+            allow 127.0.0.1/32;
+            allow 203.179.90.192/28;
+            deny all;
+        }
+    }
+}

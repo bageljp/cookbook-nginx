@@ -1,0 +1,11 @@
+/var/log/nginx/*log {
+    create 0644 nginx nginx
+    daily
+    rotate <%= node['nginx']['log_rotate'] %>
+    dateext
+    missingok
+    sharedscripts
+    postrotate
+        /etc/init.d/nginx reopen_logs
+    endscript
+}
